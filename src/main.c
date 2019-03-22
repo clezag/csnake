@@ -12,7 +12,7 @@ int config_init(game_config** ret_config){
 }
 
 // Initialize the game_context struct
-int game_init(game_context** ret_context, const game_config* config){ 
+int game_init(game_context** ret_context, game_config* config){ 
     game_context* context = malloc(sizeof *context);
     memset(context, 0, sizeof *context); 
 
@@ -52,6 +52,17 @@ int game_init(game_context** ret_context, const game_config* config){
     if(!context->font){
         printf("couldn't initialize font\n");
         return 1;
+    }    
+    
+    if(!al_init_image_addon()){
+        printf("couldn't initialize image addon\n");
+        return 1;
+    }
+
+    context->snek = al_load_bitmap(BTM_SNEK);
+    if(!context->snek){
+        printf("couldn't load the snek");
+        return 1;
     }
 
     al_register_event_source(context->queue, al_get_keyboard_event_source());
@@ -74,6 +85,18 @@ void game_destroy(game_context* context){
     free(context);
  }
 
+ void render(game_context* context){
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+
+    al_draw_text(context->font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
+
+    al_draw_bitmap(context->snek, 200, 200, 0);
+
+    al_flip_display();
+
+    context->redraw = false;
+ }
+
 int main(){
     int err;
 
@@ -90,6 +113,7 @@ int main(){
 
     ALLEGRO_EVENT event;
     al_start_timer(context->timer);
+
     while(true){
         al_wait_for_event(context->queue, &event);
 
@@ -100,10 +124,7 @@ int main(){
         }
 
         if(context->redraw && al_is_event_queue_empty(context->queue)){
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_text(context->font, al_map_rgb(255, 255, 255), 0, 0, 0, "Hello world!");
-            al_flip_display();
-
+            render(context);
             context->redraw = false;
         }
     }
