@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-Wall
 
-LDFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_image-5 --libs --cflags`
+LDFLAGS=`pkg-config allegro-5 allegro_font-5 allegro_image-5 allegro_primitives-5 --libs --cflags`
 
 src = $(wildcard src/*.c)
 obj = $(src:.c=.o)

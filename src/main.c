@@ -11,6 +11,13 @@ int config_init(game_config** ret_config){
     return 0;
 }
 
+void must_init(bool init_ok, const char* descr){
+    if(!init_ok){
+        printf("couldn't initialize %s\n", descr);
+        exit(1);
+    }
+}
+
 // Initialize the game_context struct
 int game_init(game_context** ret_context, game_config* config){ 
     game_context* context = malloc(sizeof *context);
@@ -20,50 +27,25 @@ int game_init(game_context** ret_context, game_config* config){
 
     context->config = config;
 
-    if(!al_init()){
-        printf("couldn't initialize allegro\n");
-        return 1;
-    }
-
-    if(!al_install_keyboard()){
-        printf("couldn't initialize keyboard\n");
-        return 1;
-    }
+    must_init(al_init(), "allegro"); 
+    must_init(al_install_keyboard(), "keyboard");
 
     context->timer = al_create_timer(config->fps);
-    if(!context->timer){
-        printf("couldn't initialize timer\n");
-        return 1;
-    }
+    must_init(context->timer, "timer");
 
     context->queue = al_create_event_queue();
-    if(!context->queue){
-        printf("couldn't initialize queue\n");
-        return 1;
-    }
+    must_init(context->queue, "queue");
 
     context->disp = al_create_display(config->res_w, config->res_h);
-    if(!context->disp){
-        printf("couldn't initialize display\n");
-        return 1;
-    }
+    must_init(context->disp, "display");
 
     context->font = al_create_builtin_font();
-    if(!context->font){
-        printf("couldn't initialize font\n");
-        return 1;
-    }    
+    must_init(context->font, "font");
     
-    if(!al_init_image_addon()){
-        printf("couldn't initialize image addon\n");
-        return 1;
-    }
+    must_init(al_init_image_addon(), "image");
 
     context->snek = al_load_bitmap(BTM_SNEK);
-    if(!context->snek){
-        printf("couldn't load the snek");
-        return 1;
-    }
+    must_init(context->snek, "snek");
 
     al_register_event_source(context->queue, al_get_keyboard_event_source());
     al_register_event_source(context->queue, al_get_display_event_source(context->disp));
